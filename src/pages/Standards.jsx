@@ -214,14 +214,37 @@ export default function Standards() {
       const map = {};
       list.forEach(i => { map[i.code] = i; });
       setEvaluations(map);
-      // map tasks by indicator_code
+
+      // Build all indicator codes from ETEC_STRUCTURE
+      const allIndicators = ETEC_STRUCTURE.flatMap(d =>
+        d.standards.flatMap(s => s.indicators.map(i => ({ code: i.code, domain: d.domain, standard: s.code, standardName: s.name })))
+      );
+
+      // Map each task to matching indicator codes
       const tmap = {};
+      const addToMap = (code, task) => {
+        if (!tmap[code]) tmap[code] = [];
+        // avoid duplicates
+        if (!tmap[code].find(t => t.id === task.id)) tmap[code].push(task);
+      };
+
       tasks.forEach(t => {
-        if (t.indicator_code) {
-          if (!tmap[t.indicator_code]) tmap[t.indicator_code] = [];
-          tmap[t.indicator_code].push(t);
-        }
+        if (!t.indicator_code) return;
+        const val = t.indicator_code.trim();
+        allIndicators.forEach(ind => {
+          // exact indicator match
+          if (ind.code === val) { addToMap(ind.code, t); return; }
+          // standard match e.g. "1-1" or "1-1 التخطيط"
+          if (val.startsWith(ind.standard) || val.includes(ind.standardName)) { addToMap(ind.code, t); return; }
+          // domain match e.g. "مجال الإدارة المدرسية"
+          if (ind.domain.includes(val.replace('مجال ', '').split(' ')[0]) || val.includes(ind.domain.split(' ')[1] || '____')) { addToMap(ind.code, t); return; }
+          // numeric domain prefix e.g. task code starts with same first digit
+          const taskFirstPart = val.split('-')[0];
+          const indFirstPart = ind.code.split('-')[0];
+          if (taskFirstPart === indFirstPart && val.split('-').length <= 2) { addToMap(ind.code, t); }
+        });
       });
+
       setTasksByCode(tmap);
     });
   }, [])
