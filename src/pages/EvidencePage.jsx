@@ -127,6 +127,11 @@ export default function EvidencePage() {
     setShowAdd(false);
   };
 
+  const handleStatusChange = async (id, newStatus) => {
+    const updated = await base44.entities.Evidence.update(id, { status: newStatus });
+    setEvidence(prev => prev.map(e => e.id === id ? { ...e, status: updated.status } : e));
+  };
+
   const handleDelete = async (id) => {
     if (!confirm("هل تريد حذف هذا الشاهد؟")) return;
     await base44.entities.Evidence.delete(id);
@@ -222,7 +227,15 @@ export default function EvidencePage() {
                     </td>
                     <td className="px-4 py-3 text-sm text-muted-foreground">{ev.academic_year || "—"}</td>
                     <td className="px-4 py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColors[ev.status] || ""}`}>{ev.status}</span>
+                      <select
+                        value={ev.status}
+                        onChange={e => handleStatusChange(ev.id, e.target.value)}
+                        className={`text-xs px-2 py-1 rounded-full font-medium border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 ${statusColors[ev.status] || ""}`}
+                      >
+                        {["قيد المراجعة", "مكتمل", "ناقص"].map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
                     </td>
                     <td className="px-4 py-3">
                       {ev.file_url ? (
