@@ -200,18 +200,31 @@ function EditIndicatorModal({ indicator, onSave, onClose }) {
 
 export default function Standards() {
   const [evaluations, setEvaluations] = useState({});
+  const [tasksByCode, setTasksByCode] = useState({});
   const [expandedDomains, setExpandedDomains] = useState({ "1": true });
   const [expandedStandards, setExpandedStandards] = useState({});
   const [editingIndicator, setEditingIndicator] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    base44.entities.Indicator.list().then(list => {
+    Promise.all([
+      base44.entities.Indicator.list(),
+      base44.entities.Task.list(),
+    ]).then(([list, tasks]) => {
       const map = {};
       list.forEach(i => { map[i.code] = i; });
       setEvaluations(map);
+      // map tasks by indicator_code
+      const tmap = {};
+      tasks.forEach(t => {
+        if (t.indicator_code) {
+          if (!tmap[t.indicator_code]) tmap[t.indicator_code] = [];
+          tmap[t.indicator_code].push(t);
+        }
+      });
+      setTasksByCode(tmap);
     });
-  }, []);
+  }, [])
 
   const toggleDomain = (code) => setExpandedDomains(p => ({ ...p, [code]: !p[code] }));
   const toggleStandard = (code) => setExpandedStandards(p => ({ ...p, [code]: !p[code] }));
@@ -301,7 +314,13 @@ export default function Standards() {
                                 <div className="flex items-start gap-3">
                                   <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded flex-shrink-0 mt-0.5">{ind.code}</span>
                                   <p className="text-sm flex-1 leading-relaxed">{ind.desc}</p>
-                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
+                                    {/* Assignees from tasks */}
+                                    {(tasksByCode[ind.code] || []).filter(t => t.status !== "مكتملة").map(t => (
+                                      <span key={t.id} className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5 font-medium">
+                                        👤 {t.assigned_to}
+                                      </span>
+                                    ))}
                                     <PerformanceBadge level={data.performance_level} />
                                     {data.score_percentage > 0 && (
                                       <span className="text-xs text-muted-foreground">{data.score_percentage}%</span>
