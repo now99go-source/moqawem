@@ -2,9 +2,45 @@ import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, X, CheckCircle2, Clock, AlertCircle, Calendar, User, Trash2, Edit2 } from "lucide-react";
 
+const ASSIGNMENT_OPTIONS = [
+  { group: "المجالات", items: [
+    { value: "مجال الإدارة المدرسية", label: "مجال الإدارة المدرسية" },
+    { value: "مجال التعليم والتعلم", label: "مجال التعليم والتعلم" },
+    { value: "مجال نواتج التعلم", label: "مجال نواتج التعلم" },
+    { value: "مجال البيئة المدرسية", label: "مجال البيئة المدرسية" },
+  ]},
+  { group: "المعايير", items: [
+    { value: "1-1 التخطيط", label: "1-1 التخطيط" },
+    { value: "1-2 قيادة العملية التعليمية", label: "1-2 قيادة العملية التعليمية" },
+    { value: "1-3 المجتمع المدرسي", label: "1-3 المجتمع المدرسي" },
+    { value: "1-4 التطوير المؤسسي", label: "1-4 التطوير المؤسسي" },
+    { value: "2-1 بناء خبرات التعلم", label: "2-1 بناء خبرات التعلم" },
+    { value: "2-2 تقويم التعلم", label: "2-2 تقويم التعلم" },
+    { value: "3-1 التحصيل التعليمي", label: "3-1 التحصيل التعليمي" },
+    { value: "3-2 التطور الشخصي والصحي والاجتماعي", label: "3-2 التطور الشخصي والاجتماعي" },
+    { value: "4-1 المبنى المدرسي", label: "4-1 المبنى المدرسي" },
+    { value: "4-2 الأمن والسلامة", label: "4-2 الأمن والسلامة" },
+  ]},
+  { group: "المؤشرات — الإدارة", items: [
+    "1-1-1-1","1-1-1-2","1-2-1-1","1-2-1-2","1-2-1-3","1-2-1-4","1-2-1-5","1-2-1-6",
+    "1-3-1-1","1-3-1-2","1-3-1-3","1-4-1-1","1-4-1-2","1-4-1-3","1-4-1-4","1-4-1-5","1-4-1-6","1-4-1-7",
+  ].map(v=>({value:v,label:v}))},
+  { group: "المؤشرات — التعليم والتعلم", items: [
+    "2-1-1-1","2-1-1-2","2-1-1-3","2-1-1-4","2-1-1-5","2-1-1-6","2-1-1-7","2-1-1-8","2-1-1-9","2-1-1-10",
+    "2-2-1-1","2-2-1-2","2-2-1-3",
+  ].map(v=>({value:v,label:v}))},
+  { group: "المؤشرات — نواتج التعلم", items: [
+    "3-1-1-1","3-1-1-2","3-1-1-3","3-1-1-4","3-1-1-5","3-1-1-6",
+    "3-2-1-1","3-2-1-2","3-2-1-3","3-2-1-4","3-2-1-5","3-2-1-6","3-2-1-7",
+  ].map(v=>({value:v,label:v}))},
+  { group: "المؤشرات — البيئة المدرسية", items: [
+    "4-1-1-1","4-1-1-2","4-1-1-3","4-2-1-1","4-2-1-2","4-2-1-3",
+  ].map(v=>({value:v,label:v}))},
+];
+
 function TaskModal({ task, onSave, onClose }) {
   const [form, setForm] = useState(task || {
-    title: "", description: "", assigned_to: "", assigned_role: "مدير المدرسة",
+    title: "", description: "", assigned_to: "محمد عبدالرحمن العمري", assigned_role: "مدير المدرسة",
     indicator_code: "", due_date: "", priority: "عادي", status: "لم تبدأ",
     completion_percentage: 0, notes: ""
   });
@@ -58,10 +94,18 @@ function TaskModal({ task, onSave, onClose }) {
             </div>
           </div>
           <div>
-            <label className="text-sm font-medium mb-1.5 block">رمز المؤشر المرتبط</label>
-            <input value={form.indicator_code} onChange={e => setForm(f=>({...f,indicator_code:e.target.value}))}
-              className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-              placeholder="مثال: 1-1-1-1" />
+            <label className="text-sm font-medium mb-1.5 block">نطاق التكليف (مجال / معيار / مؤشر)</label>
+            <select value={form.indicator_code} onChange={e => setForm(f=>({...f,indicator_code:e.target.value}))}
+              className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <option value="">— اختر النطاق —</option>
+              {ASSIGNMENT_OPTIONS.map(group => (
+                <optgroup key={group.group} label={group.group}>
+                  {group.items.map(item => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
           {task && (
             <div>

@@ -5,10 +5,10 @@ import { School, Save, CheckCircle2, Users, BookOpen, Building2 } from "lucide-r
 export default function SchoolProfilePage() {
   const [profile, setProfile] = useState(null);
   const [form, setForm] = useState({
-    school_name: "", school_number: "", region: "", city: "", education_office: "",
-    principal_name: "", phone: "", email: "", school_type: "حكومية", stage: "ثانوية",
+    school_name: "مدرسة الموهوبين التقنية الثانوية للبنين", school_number: "", region: "", city: "", education_office: "",
+    principal_name: "محمد عبدالرحمن العمري", phone: "", email: "", school_type: "حكومية", stage: "ثانوية",
     gender: "بنين", student_count: "", teacher_count: "", admin_count: "",
-    class_count: "", lab_count: "", academic_year: "1446/1447",
+    class_count: "", lab_count: "", academic_year: "1447هـ",
     achievements: "", challenges: "", whatsapp: "", readiness_status: "لم تبدأ"
   });
   const [loading, setLoading] = useState(true);

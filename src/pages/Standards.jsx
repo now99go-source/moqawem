@@ -315,7 +315,11 @@ export default function Standards() {
                                   </div>
                                 </div>
                                 {data.responsible && (
-                                  <div className="mr-16 mt-1 text-xs text-muted-foreground">المسؤول: {data.responsible}</div>
+                                  <div className="mr-16 mt-1">
+                                    <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary border border-primary/20 rounded-full px-2.5 py-0.5 font-medium">
+                                      👤 {data.responsible}
+                                    </span>
+                                  </div>
                                 )}
                               </div>
                             );
