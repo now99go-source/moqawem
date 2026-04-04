@@ -14,6 +14,7 @@ import ImprovementPlanPage from './pages/ImprovementPlanPage';
 import SchoolProfilePage from './pages/SchoolProfilePage';
 import NotificationsPage from './pages/NotificationsPage';
 import MessagingPage from './pages/MessagingPage';
+import AnalyticsPage from './pages/AnalyticsPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
         <Route path="/school-profile" element={<SchoolProfilePage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
         <Route path="/messaging" element={<MessagingPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>

@@ -2,13 +2,14 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
   LayoutDashboard, BookOpen, FileText, CheckSquare, TrendingUp,
-  School, Bell, Search, Menu, X, ChevronLeft, Settings, LogOut, MessageSquare
+  School, Bell, Search, Menu, X, ChevronLeft, Settings, LogOut, MessageSquare, BarChart2
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
 
 const navItems = [
   { path: "/", label: "لوحة التحكم", icon: LayoutDashboard },
+  { path: "/analytics", label: "لوحة المعلومات", icon: BarChart2 },
   { path: "/standards", label: "المعايير والمؤشرات", icon: BookOpen },
   { path: "/evidence", label: "إدارة الشواهد", icon: FileText },
   { path: "/tasks", label: "التكليفات", icon: CheckSquare },
