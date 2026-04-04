@@ -5,7 +5,14 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Standards from './pages/Standards';
+import EvidencePage from './pages/EvidencePage';
+import TasksPage from './pages/TasksPage';
+import ImprovementPlanPage from './pages/ImprovementPlanPage';
+import SchoolProfilePage from './pages/SchoolProfilePage';
+import NotificationsPage from './pages/NotificationsPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -33,7 +40,15 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
+      <Route element={<Layout />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/standards" element={<Standards />} />
+        <Route path="/evidence" element={<EvidencePage />} />
+        <Route path="/tasks" element={<TasksPage />} />
+        <Route path="/improvement" element={<ImprovementPlanPage />} />
+        <Route path="/school-profile" element={<SchoolProfilePage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

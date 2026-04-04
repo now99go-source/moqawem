@@ -1,0 +1,68 @@
+{
+  "name": "Evidence",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0634\u0627\u0647\u062f"
+    },
+    "description": {
+      "type": "string",
+      "title": "\u0627\u0644\u0648\u0635\u0641"
+    },
+    "domain_id": {
+      "type": "string",
+      "title": "\u0627\u0644\u0645\u062c\u0627\u0644"
+    },
+    "standard_id": {
+      "type": "string",
+      "title": "\u0627\u0644\u0645\u0639\u064a\u0627\u0631"
+    },
+    "indicator_id": {
+      "type": "string",
+      "title": "\u0627\u0644\u0645\u0624\u0634\u0631"
+    },
+    "indicator_code": {
+      "type": "string",
+      "title": "\u0631\u0645\u0632 \u0627\u0644\u0645\u0624\u0634\u0631"
+    },
+    "file_url": {
+      "type": "string",
+      "title": "\u0631\u0627\u0628\u0637 \u0627\u0644\u0645\u0644\u0641"
+    },
+    "file_name": {
+      "type": "string",
+      "title": "\u0627\u0633\u0645 \u0627\u0644\u0645\u0644\u0641"
+    },
+    "file_type": {
+      "type": "string",
+      "title": "\u0646\u0648\u0639 \u0627\u0644\u0645\u0644\u0641"
+    },
+    "academic_year": {
+      "type": "string",
+      "title": "\u0627\u0644\u0639\u0627\u0645 \u0627\u0644\u062f\u0631\u0627\u0633\u064a"
+    },
+    "status": {
+      "type": "string",
+      "title": "\u0627\u0644\u062d\u0627\u0644\u0629",
+      "enum": [
+        "\u0645\u0643\u062a\u0645\u0644",
+        "\u0646\u0627\u0642\u0635",
+        "\u0642\u064a\u062f \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629"
+      ],
+      "default": "\u0642\u064a\u062f \u0627\u0644\u0645\u0631\u0627\u062c\u0639\u0629"
+    },
+    "source": {
+      "type": "string",
+      "title": "\u0627\u0644\u0645\u0635\u062f\u0631"
+    },
+    "responsible": {
+      "type": "string",
+      "title": "\u0627\u0644\u0645\u0633\u0624\u0648\u0644"
+    }
+  },
+  "required": [
+    "title",
+    "indicator_id"
+  ]
+}
