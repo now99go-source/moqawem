@@ -2,7 +2,7 @@ import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
   LayoutDashboard, BookOpen, FileText, CheckSquare, TrendingUp,
-  School, Bell, Search, Menu, X, ChevronLeft, Settings, LogOut
+  School, Bell, Search, Menu, X, ChevronLeft, Settings, LogOut, MessageSquare
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { useAuth } from "@/lib/AuthContext";
@@ -15,6 +15,7 @@ const navItems = [
   { path: "/improvement", label: "خطة التحسين", icon: TrendingUp },
   { path: "/school-profile", label: "بيانات المدرسة", icon: School },
   { path: "/notifications", label: "الإشعارات", icon: Bell },
+  { path: "/messaging", label: "المراسلة", icon: MessageSquare },
 ];
 
 export default function Layout() {
