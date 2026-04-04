@@ -206,48 +206,51 @@ export default function Standards() {
   const [editingIndicator, setEditingIndicator] = useState(null);
   const [saving, setSaving] = useState(false);
 
+  const [evidenceByCode, setEvidenceByCode] = useState({});
+
   useEffect(() => {
     Promise.all([
       base44.entities.Indicator.list(),
       base44.entities.Task.list(),
-    ]).then(([list, tasks]) => {
+      base44.entities.Evidence.list(),
+    ]).then(([list, tasks, evidences]) => {
       const map = {};
       list.forEach(i => { map[i.code] = i; });
       setEvaluations(map);
 
-      // Build all indicator codes from ETEC_STRUCTURE
-      const allIndicators = ETEC_STRUCTURE.flatMap(d =>
-        d.standards.flatMap(s => s.indicators.map(i => ({ code: i.code, domain: d.domain, standard: s.code, standardName: s.name })))
-      );
+      // Map evidence by indicator_code
+      const emap = {};
+      evidences.forEach(e => {
+        if (e.indicator_code) {
+          if (!emap[e.indicator_code]) emap[e.indicator_code] = [];
+          emap[e.indicator_code].push(e);
+        }
+      });
+      setEvidenceByCode(emap);
 
       // Map each task to matching indicator codes
       const tmap = {};
       const addToMap = (code, task) => {
         if (!tmap[code]) tmap[code] = [];
-        // avoid duplicates
         if (!tmap[code].find(t => t.id === task.id)) tmap[code].push(task);
       };
-
+      const allIndicators = ETEC_STRUCTURE.flatMap(d =>
+        d.standards.flatMap(s => s.indicators.map(i => ({ code: i.code, domain: d.domain, standard: s.code, standardName: s.name })))
+      );
       tasks.forEach(t => {
         if (!t.indicator_code) return;
         const val = t.indicator_code.trim();
         allIndicators.forEach(ind => {
-          // exact indicator match
           if (ind.code === val) { addToMap(ind.code, t); return; }
-          // standard match e.g. "1-1" or "1-1 التخطيط"
           if (val.startsWith(ind.standard) || val.includes(ind.standardName)) { addToMap(ind.code, t); return; }
-          // domain match e.g. "مجال الإدارة المدرسية"
-          if (ind.domain.includes(val.replace('مجال ', '').split(' ')[0]) || val.includes(ind.domain.split(' ')[1] || '____')) { addToMap(ind.code, t); return; }
-          // numeric domain prefix e.g. task code starts with same first digit
           const taskFirstPart = val.split('-')[0];
           const indFirstPart = ind.code.split('-')[0];
           if (taskFirstPart === indFirstPart && val.split('-').length <= 2) { addToMap(ind.code, t); }
         });
       });
-
       setTasksByCode(tmap);
     });
-  }, [])
+  }, []);
 
   const toggleDomain = (code) => setExpandedDomains(p => ({ ...p, [code]: !p[code] }));
   const toggleStandard = (code) => setExpandedStandards(p => ({ ...p, [code]: !p[code] }));
@@ -343,6 +346,15 @@ export default function Standards() {
                                       <span key={t.id} className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5 font-medium">
                                         👤 {t.assigned_to}
                                       </span>
+                                    ))}
+                                    {/* Evidence badges */}
+                                    {(evidenceByCode[ind.code] || []).map(ev => (
+                                      ev.file_url
+                                        ? <a key={ev.id} href={ev.file_url} target="_blank" rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-full px-2.5 py-0.5 font-medium hover:bg-green-100 transition-colors">
+                                            📎 يوجد شاهد
+                                          </a>
+                                        : <span key={ev.id} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-full px-2.5 py-0.5 font-medium">📎 يوجد شاهد</span>
                                     ))}
                                     <PerformanceBadge level={data.performance_level} />
                                     {data.score_percentage > 0 && (
