@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, X, CheckCircle2, Clock, AlertCircle, Calendar, User, Trash2, Edit2 } from "lucide-react";
+import { indicatorLabel } from "../utils/indicatorMap";
 
 const ASSIGNMENT_OPTIONS = [
   { group: "المجالات", items: [
@@ -24,18 +25,18 @@ const ASSIGNMENT_OPTIONS = [
   { group: "المؤشرات — الإدارة", items: [
     "1-1-1-1","1-1-1-2","1-2-1-1","1-2-1-2","1-2-1-3","1-2-1-4","1-2-1-5","1-2-1-6",
     "1-3-1-1","1-3-1-2","1-3-1-3","1-4-1-1","1-4-1-2","1-4-1-3","1-4-1-4","1-4-1-5","1-4-1-6","1-4-1-7",
-  ].map(v=>({value:v,label:v}))},
+  ].map(v=>({value:v,label:indicatorLabel(v)}))},
   { group: "المؤشرات — التعليم والتعلم", items: [
     "2-1-1-1","2-1-1-2","2-1-1-3","2-1-1-4","2-1-1-5","2-1-1-6","2-1-1-7","2-1-1-8","2-1-1-9","2-1-1-10",
     "2-2-1-1","2-2-1-2","2-2-1-3",
-  ].map(v=>({value:v,label:v}))},
+  ].map(v=>({value:v,label:indicatorLabel(v)}))},
   { group: "المؤشرات — نواتج التعلم", items: [
     "3-1-1-1","3-1-1-2","3-1-1-3","3-1-1-4","3-1-1-5","3-1-1-6",
     "3-2-1-1","3-2-1-2","3-2-1-3","3-2-1-4","3-2-1-5","3-2-1-6","3-2-1-7",
-  ].map(v=>({value:v,label:v}))},
+  ].map(v=>({value:v,label:indicatorLabel(v)}))},
   { group: "المؤشرات — البيئة المدرسية", items: [
     "4-1-1-1","4-1-1-2","4-1-1-3","4-2-1-1","4-2-1-2","4-2-1-3",
-  ].map(v=>({value:v,label:v}))},
+  ].map(v=>({value:v,label:indicatorLabel(v)}))},
 ];
 
 function TaskModal({ task, onSave, onClose }) {

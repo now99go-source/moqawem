@@ -1,16 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Upload, FileText, Link2, Search, Plus, X, Check, File, Eye, Trash2 } from "lucide-react";
-
-const INDICATOR_CODES = [
-  "1-1-1-1","1-1-1-2","1-2-1-1","1-2-1-2","1-2-1-3","1-2-1-4","1-2-1-5","1-2-1-6",
-  "1-3-1-1","1-3-1-2","1-3-1-3","1-4-1-1","1-4-1-2","1-4-1-3","1-4-1-4","1-4-1-5","1-4-1-6","1-4-1-7",
-  "2-1-1-1","2-1-1-2","2-1-1-3","2-1-1-4","2-1-1-5","2-1-1-6","2-1-1-7","2-1-1-8","2-1-1-9","2-1-1-10",
-  "2-2-1-1","2-2-1-2","2-2-1-3",
-  "3-1-1-1","3-1-1-2","3-1-1-3","3-1-1-4","3-1-1-5","3-1-1-6",
-  "3-2-1-1","3-2-1-2","3-2-1-3","3-2-1-4","3-2-1-5","3-2-1-6","3-2-1-7",
-  "4-1-1-1","4-1-1-2","4-1-1-3","4-2-1-1","4-2-1-2","4-2-1-3",
-];
+import { INDICATOR_CODES_LIST, indicatorLabel } from "../utils/indicatorMap";
 
 function AddEvidenceModal({ onSave, onClose }) {
   const [form, setForm] = useState({
@@ -53,7 +44,7 @@ function AddEvidenceModal({ onSave, onClose }) {
             <select value={form.indicator_code} onChange={e => setForm(f=>({...f,indicator_code:e.target.value}))}
               className="w-full bg-secondary border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
               <option value="">اختر المؤشر</option>
-              {INDICATOR_CODES.map(c => <option key={c} value={c}>{c}</option>)}
+              {INDICATOR_CODES_LIST.map(c => <option key={c} value={c}>{indicatorLabel(c)}</option>)}
             </select>
           </div>
           <div>
