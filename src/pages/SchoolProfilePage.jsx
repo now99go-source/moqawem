@@ -39,8 +39,8 @@ export default function SchoolProfilePage() {
     setTimeout(() => setSaved(false), 3000);
   };
 
-  const Field = ({ label, name, type = "text", options, cols = 1 }) => (
-    <div className={cols === 2 ? "md:col-span-2" : ""}>
+  const renderField = (label, name, type = "text", options) => (
+    <div>
       <label className="text-sm font-medium mb-1.5 block text-foreground">{label}</label>
       {options ? (
         <select value={form[name] || ""} onChange={e => setForm(f=>({...f,[name]:e.target.value}))}
@@ -103,18 +103,18 @@ export default function SchoolProfilePage() {
       <div className="bg-card border border-border rounded-xl p-5">
         <h2 className="font-bold mb-4 flex items-center gap-2"><Building2 size={18} className="text-primary"/>المعلومات الأساسية</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Field label="اسم المدرسة *" name="school_name" />
-          <Field label="رقم المدرسة" name="school_number" />
-          <Field label="المنطقة" name="region" />
-          <Field label="المدينة" name="city" />
-          <Field label="مكتب التعليم" name="education_office" />
-          <Field label="اسم المدير" name="principal_name" />
-          <Field label="رقم الهاتف" name="phone" />
-          <Field label="البريد الإلكتروني" name="email" type="email" />
-          <Field label="نوع المدرسة" name="school_type" options={["حكومية","أهلية","عالمية"]} />
-          <Field label="المرحلة" name="stage" options={["ابتدائية","متوسطة","ثانوية","مشتركة"]} />
-          <Field label="الجنس" name="gender" options={["بنين","بنات"]} />
-          <Field label="العام الدراسي" name="academic_year" />
+          {renderField("اسم المدرسة *", "school_name")}
+          {renderField("رقم المدرسة", "school_number")}
+          {renderField("المنطقة", "region")}
+          {renderField("المدينة", "city")}
+          {renderField("مكتب التعليم", "education_office")}
+          {renderField("اسم المدير", "principal_name")}
+          {renderField("رقم الهاتف", "phone")}
+          {renderField("البريد الإلكتروني", "email", "email")}
+          {renderField("نوع المدرسة", "school_type", "text", ["حكومية","أهلية","عالمية"])}
+          {renderField("المرحلة", "stage", "text", ["ابتدائية","متوسطة","ثانوية","مشتركة"])}
+          {renderField("الجنس", "gender", "text", ["بنين","بنات"])}
+          {renderField("العام الدراسي", "academic_year")}
         </div>
       </div>
 
@@ -122,12 +122,12 @@ export default function SchoolProfilePage() {
       <div className="bg-card border border-border rounded-xl p-5">
         <h2 className="font-bold mb-4 flex items-center gap-2"><Users size={18} className="text-primary"/>البيانات الإحصائية</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="عدد الطلاب" name="student_count" type="number" />
-          <Field label="عدد المعلمين" name="teacher_count" type="number" />
-          <Field label="عدد الإداريين" name="admin_count" type="number" />
-          <Field label="عدد الفصول" name="class_count" type="number" />
-          <Field label="عدد المعامل" name="lab_count" type="number" />
-          <Field label="رقم الواتساب" name="whatsapp" />
+          {renderField("عدد الطلاب", "student_count", "number")}
+          {renderField("عدد المعلمين", "teacher_count", "number")}
+          {renderField("عدد الإداريين", "admin_count", "number")}
+          {renderField("عدد الفصول", "class_count", "number")}
+          {renderField("عدد المعامل", "lab_count", "number")}
+          {renderField("رقم الواتساب", "whatsapp")}
         </div>
       </div>
 
@@ -135,8 +135,8 @@ export default function SchoolProfilePage() {
       <div className="bg-card border border-border rounded-xl p-5">
         <h2 className="font-bold mb-4 flex items-center gap-2"><BookOpen size={18} className="text-primary"/>المنجزات والتحديات</h2>
         <div className="space-y-4">
-          <Field label="أبرز المنجزات" name="achievements" type="textarea" cols={2} />
-          <Field label="أبرز التحديات والمعوقات" name="challenges" type="textarea" cols={2} />
+          {renderField("أبرز المنجزات", "achievements", "textarea")}
+          {renderField("أبرز التحديات والمعوقات", "challenges", "textarea")}
         </div>
       </div>
     </div>
