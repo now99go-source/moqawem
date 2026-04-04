@@ -103,18 +103,26 @@ export default function EvidencePage() {
   const [evidence, setEvidence] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAdd, setShowAdd] = useState(false);
+  const [indicatorIdMap, setIndicatorIdMap] = useState({});
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("الكل");
 
   useEffect(() => {
-    base44.entities.Evidence.list('-created_date').then(list => {
+    Promise.all([
+      base44.entities.Evidence.list('-created_date'),
+      base44.entities.Indicator.list(),
+    ]).then(([list, indicators]) => {
       setEvidence(list);
+      const map = {};
+      indicators.forEach(i => { map[i.code] = i.id; });
+      setIndicatorIdMap(map);
       setLoading(false);
     });
   }, []);
 
   const handleAdd = async (data) => {
-    const saved = await base44.entities.Evidence.create(data);
+    const indicator_id = indicatorIdMap[data.indicator_code] || null;
+    const saved = await base44.entities.Evidence.create({ ...data, indicator_id });
     setEvidence(prev => [saved, ...prev]);
     setShowAdd(false);
   };
