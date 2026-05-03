@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PerformanceBadge from "../components/PerformanceBadge";
-import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X } from "lucide-react";
+import AddEvidenceInline from "../components/AddEvidenceInline";
+import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon } from "lucide-react";
 
 // Built-in standards data based on ETEC framework
 const ETEC_STRUCTURE = [
@@ -304,6 +305,7 @@ export default function Standards() {
   const [expandedDomains, setExpandedDomains] = useState({ "1": true });
   const [expandedStandards, setExpandedStandards] = useState({});
   const [editingIndicator, setEditingIndicator] = useState(null);
+  const [addingEvidenceFor, setAddingEvidenceFor] = useState(null); // indicator code
   const [saving, setSaving] = useState(false);
 
   const [evidenceByCode, setEvidenceByCode] = useState({});
@@ -475,22 +477,43 @@ export default function Standards() {
                                       <span className="text-xs text-muted-foreground">{data.score_percentage}%</span>
                                     )}
                                     <button
+                                      onClick={() => setAddingEvidenceFor(prev => prev === ind.code ? null : ind.code)}
+                                      className={`p-1.5 rounded-lg transition-colors ${addingEvidenceFor === ind.code ? "bg-blue-100 text-blue-600" : "hover:bg-blue-50 text-muted-foreground hover:text-blue-600"}`}
+                                      title="إضافة شاهد"
+                                    >
+                                      <PaperclipIcon size={14} />
+                                    </button>
+                                    <button
                                       onClick={() => setEditingIndicator({ ...data, domainCode: domain.code, standardCode: standard.code })}
                                       className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                       <Edit2 size={14} />
                                     </button>
-                                   </div>
-                                   </div>
-                                   {data.responsible && (
-                                   <div className="mr-16 mt-1">
+                                    </div>
+                                    </div>
+                                    {data.responsible && (
+                                    <div className="mr-16 mt-1">
                                      <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary border border-primary/20 rounded-full px-2.5 py-0.5 font-medium">
                                        👤 {data.responsible}
                                      </span>
-                                   </div>
-                                   )}
-                                   </div>
-                                   );
+                                    </div>
+                                    )}
+                                    {addingEvidenceFor === ind.code && (
+                                     <AddEvidenceInline
+                                       indicatorCode={ind.code}
+                                       indicatorId={evaluations[ind.code]?.id || null}
+                                       onSaved={(saved) => {
+                                         setEvidenceByCode(prev => ({
+                                           ...prev,
+                                           [ind.code]: [...(prev[ind.code] || []), saved],
+                                         }));
+                                         setAddingEvidenceFor(null);
+                                       }}
+                                       onClose={() => setAddingEvidenceFor(null)}
+                                     />
+                                    )}
+                                    </div>
+                                    );
                                    })}
                                    </div>
                                    )}
