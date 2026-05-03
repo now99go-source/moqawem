@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import PerformanceBadge from "../components/PerformanceBadge";
 import AddEvidenceInline from "../components/AddEvidenceInline";
+import { REQUIRED_DOCS } from "../utils/requiredDocuments";
 import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon } from "lucide-react";
 
 // Built-in standards data based on ETEC framework
@@ -453,6 +454,18 @@ export default function Standards() {
                                          {ind.tools.map(tool => (
                                            <span key={tool} className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded px-2 py-0.5 font-medium">{tool}</span>
                                          ))}
+                                       </div>
+                                     )}
+                                     {REQUIRED_DOCS[ind.code] && (
+                                       <div className="mt-2">
+                                         <div className="text-xs text-blue-600 font-semibold mb-1">📂 الوثائق والسجلات المطلوبة:</div>
+                                         <div className="flex flex-wrap gap-1.5">
+                                           {REQUIRED_DOCS[ind.code].map(doc => (
+                                             <span key={doc} className="text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-md px-2.5 py-1 font-medium">
+                                               {doc}
+                                             </span>
+                                           ))}
+                                         </div>
                                        </div>
                                      )}
                                    </div>
