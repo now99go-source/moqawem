@@ -306,7 +306,8 @@ export default function Standards() {
   const [expandedDomains, setExpandedDomains] = useState({ "1": true });
   const [expandedStandards, setExpandedStandards] = useState({});
   const [editingIndicator, setEditingIndicator] = useState(null);
-  const [addingEvidenceFor, setAddingEvidenceFor] = useState(null); // indicator code
+  const [addingEvidenceFor, setAddingEvidenceFor] = useState(null); // { code, docTitle? }
+
   const [saving, setSaving] = useState(false);
 
   const [evidenceByCode, setEvidenceByCode] = useState({});
@@ -460,11 +461,27 @@ export default function Standards() {
                                        <div className="mt-2">
                                          <div className="text-xs text-blue-600 font-semibold mb-1">📂 الوثائق والسجلات المطلوبة:</div>
                                          <div className="flex flex-wrap gap-1.5">
-                                           {REQUIRED_DOCS[ind.code].map(doc => (
-                                             <span key={doc} className="text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-md px-2.5 py-1 font-medium">
-                                               {doc}
-                                             </span>
-                                           ))}
+                                           {REQUIRED_DOCS[ind.code].map(doc => {
+                                             const linked = (evidenceByCode[ind.code] || []).find(
+                                               ev => ev.title === doc || ev.description?.includes(doc)
+                                             );
+                                             return (
+                                               <button
+                                                 key={doc}
+                                                 onClick={() => setAddingEvidenceFor({ code: ind.code, docTitle: doc })}
+                                                 title={linked ? `مرتبط بشاهد: ${linked.title}` : "انقر لإرفاق شاهد لهذا السجل"}
+                                                 className={`inline-flex items-center gap-1.5 text-xs rounded-md px-2.5 py-1 font-medium border transition-all hover:shadow-sm
+                                                   ${linked
+                                                     ? "bg-green-50 text-green-700 border-green-300 hover:bg-green-100"
+                                                     : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-400"
+                                                   }`}
+                                               >
+                                                 <PaperclipIcon size={11} />
+                                                 {doc}
+                                                 {linked && <span className="text-green-500">✓</span>}
+                                               </button>
+                                             );
+                                           })}
                                          </div>
                                        </div>
                                      )}
@@ -490,8 +507,8 @@ export default function Standards() {
                                       <span className="text-xs text-muted-foreground">{data.score_percentage}%</span>
                                     )}
                                     <button
-                                      onClick={() => setAddingEvidenceFor(prev => prev === ind.code ? null : ind.code)}
-                                      className={`p-1.5 rounded-lg transition-colors ${addingEvidenceFor === ind.code ? "bg-blue-100 text-blue-600" : "hover:bg-blue-50 text-muted-foreground hover:text-blue-600"}`}
+                                      onClick={() => setAddingEvidenceFor(prev => prev?.code === ind.code && !prev?.docTitle ? null : { code: ind.code })}
+                                      className={`p-1.5 rounded-lg transition-colors ${addingEvidenceFor?.code === ind.code ? "bg-blue-100 text-blue-600" : "hover:bg-blue-50 text-muted-foreground hover:text-blue-600"}`}
                                       title="إضافة شاهد"
                                     >
                                       <PaperclipIcon size={14} />
@@ -511,10 +528,11 @@ export default function Standards() {
                                      </span>
                                     </div>
                                     )}
-                                    {addingEvidenceFor === ind.code && (
+                                    {addingEvidenceFor?.code === ind.code && (
                                      <AddEvidenceInline
                                        indicatorCode={ind.code}
                                        indicatorId={evaluations[ind.code]?.id || null}
+                                       defaultTitle={addingEvidenceFor?.docTitle || ""}
                                        onSaved={(saved) => {
                                          setEvidenceByCode(prev => ({
                                            ...prev,

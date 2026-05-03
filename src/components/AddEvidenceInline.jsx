@@ -6,9 +6,9 @@ import { Upload, X, Plus, Loader2, FileText, Merge } from "lucide-react";
  * Inline evidence-adding panel, pre-bound to a specific indicator code.
  * Supports single or multi-PDF merge via PDFLib.
  */
-export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved, onClose }) {
+export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved, onClose, defaultTitle = "" }) {
   const [form, setForm] = useState({
-    title: "",
+    title: defaultTitle,
     description: "",
     academic_year: "1446/1447",
     status: "قيد المراجعة",
