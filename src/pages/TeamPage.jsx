@@ -41,9 +41,46 @@ function getRank(points) {
   return RANK_CONFIG[0];
 }
 
+const ALL_PERMISSIONS = [
+  { key: "add_evidence",            label: "إضافة شواهد",         icon: "📎" },
+  { key: "delete_evidence",         label: "حذف شواهد",           icon: "🗑️" },
+  { key: "evaluate_indicators",     label: "تقييم المؤشرات",       icon: "📊" },
+  { key: "manage_tasks",            label: "إدارة التكليفات",       icon: "✅" },
+  { key: "manage_improvement_plans",label: "خطط التحسين",          icon: "📈" },
+  { key: "view_analytics",          label: "عرض التحليلات",        icon: "🔍" },
+];
+
+function PermissionsSelector({ permissions, onChange }) {
+  const toggle = (key) => {
+    if (permissions.includes(key)) onChange(permissions.filter(p => p !== key));
+    else onChange([...permissions, key]);
+  };
+  return (
+    <div className="grid grid-cols-2 gap-2">
+      {ALL_PERMISSIONS.map(p => (
+        <button
+          key={p.key}
+          type="button"
+          onClick={() => toggle(p.key)}
+          className={`flex items-center gap-2 p-2.5 rounded-xl border text-right transition-all text-sm ${
+            permissions.includes(p.key)
+              ? "border-primary bg-primary/5 text-primary font-medium"
+              : "border-border hover:bg-secondary text-muted-foreground"
+          }`}
+        >
+          <span>{p.icon}</span>
+          <span>{p.label}</span>
+          {permissions.includes(p.key) && <span className="mr-auto text-green-500 text-xs">✓</span>}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function InviteModal({ onClose, onInvited }) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("user");
+  const [permissions, setPermissions] = useState(["add_evidence", "view_analytics"]);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -59,8 +96,8 @@ function InviteModal({ onClose, onInvited }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" dir="rtl">
-      <div className="bg-card rounded-2xl border border-border w-full max-w-md shadow-2xl">
-        <div className="flex items-center justify-between p-5 border-b border-border">
+      <div className="bg-card rounded-2xl border border-border w-full max-w-lg shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-5 border-b border-border sticky top-0 bg-card z-10">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
               <Users size={16} className="text-primary" />
@@ -91,12 +128,17 @@ function InviteModal({ onClose, onInvited }) {
                 <label className="text-sm font-medium mb-1.5 block">الدور</label>
                 <div className="grid grid-cols-2 gap-2">
                   {[
-                    { val: "user", label: "عضو فريق", icon: "👤", desc: "يمكنه المساهمة في التقييم" },
+                    { val: "user", label: "عضو فريق", icon: "👤", desc: "صلاحيات محددة" },
                     { val: "admin", label: "مدير", icon: "🔑", desc: "صلاحيات كاملة" }
                   ].map(r => (
                     <button
                       key={r.val}
-                      onClick={() => setRole(r.val)}
+                      type="button"
+                      onClick={() => {
+                        setRole(r.val);
+                        if (r.val === "admin") setPermissions(ALL_PERMISSIONS.map(p => p.key));
+                        else setPermissions(["add_evidence", "view_analytics"]);
+                      }}
                       className={`p-3 rounded-xl border text-right transition-all ${role === r.val ? "border-primary bg-primary/5" : "border-border hover:bg-secondary"}`}
                     >
                       <div className="text-lg mb-0.5">{r.icon}</div>
@@ -106,6 +148,12 @@ function InviteModal({ onClose, onInvited }) {
                   ))}
                 </div>
               </div>
+              {role === "user" && (
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">الصلاحيات المسموح بها</label>
+                  <PermissionsSelector permissions={permissions} onChange={setPermissions} />
+                </div>
+              )}
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
                 💡 سيصلهم رابط تسجيل الدخول على بريدهم الإلكتروني
               </div>
@@ -125,6 +173,78 @@ function InviteModal({ onClose, onInvited }) {
             <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-secondary">إلغاء</button>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ManageUserModal({ member, onClose, onSaved }) {
+  const [permissions, setPermissions] = useState(member.permissions || ["add_evidence", "view_analytics"]);
+  const [isActive, setIsActive] = useState(member.is_active !== false);
+  const [loading, setLoading] = useState(false);
+
+  const handleSave = async () => {
+    setLoading(true);
+    await base44.entities.User.update(member.id, { permissions, is_active: isActive });
+    setLoading(false);
+    onSaved();
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" dir="rtl">
+      <div className="bg-card rounded-2xl border border-border w-full max-w-lg shadow-2xl">
+        <div className="flex items-center justify-between p-5 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+              {member.full_name?.[0] || "؟"}
+            </div>
+            <div>
+              <div className="font-bold">{member.full_name || member.email}</div>
+              <div className="text-xs text-muted-foreground">{member.email}</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl leading-none">×</button>
+        </div>
+        <div className="p-5 space-y-5">
+          {/* Active toggle */}
+          <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-secondary/40">
+            <div>
+              <div className="font-semibold text-sm">حالة الحساب</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{isActive ? "الحساب مفعّل ويمكن للمستخدم تسجيل الدخول" : "الحساب موقوف ولا يمكن تسجيل الدخول"}</div>
+            </div>
+            <button
+              onClick={() => setIsActive(!isActive)}
+              className={`relative w-12 h-6 rounded-full transition-all ${isActive ? "bg-green-500" : "bg-gray-300"}`}
+            >
+              <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${isActive ? "right-0.5" : "left-0.5"}`} />
+            </button>
+          </div>
+
+          {/* Permissions */}
+          {member.role !== "admin" && (
+            <div>
+              <label className="text-sm font-medium mb-2 block">الصلاحيات</label>
+              <PermissionsSelector permissions={permissions} onChange={setPermissions} />
+            </div>
+          )}
+          {member.role === "admin" && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
+              🔑 المدير لديه صلاحيات كاملة ولا يمكن تقييدها
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2 p-5 border-t border-border">
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="flex-1 bg-primary text-white rounded-lg py-2 text-sm font-medium hover:bg-primary/90 disabled:opacity-50 flex items-center justify-center gap-2"
+          >
+            {loading ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : null}
+            حفظ التغييرات
+          </button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg border border-border text-sm hover:bg-secondary">إلغاء</button>
+        </div>
       </div>
     </div>
   );
@@ -205,6 +325,7 @@ export default function TeamPage() {
   const [loading, setLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
   const [activeTab, setActiveTab] = useState("leaderboard");
+  const [managingUser, setManagingUser] = useState(null);
 
   const isAdmin = user?.role === "admin";
 
@@ -282,8 +403,9 @@ export default function TeamPage() {
       {/* Tabs */}
       <div className="flex gap-2 border-b border-border pb-2">
         {[
-          { id: "leaderboard", label: "🏆 المتصدرون", },
+          { id: "leaderboard", label: "🏆 المتصدرون" },
           { id: "activity", label: "⚡ آخر النشاطات" },
+          { id: "manage", label: "⚙️ إدارة الأعضاء" },
         ].map(tab => (
           <button
             key={tab.id}
@@ -372,10 +494,64 @@ export default function TeamPage() {
         </div>
       )}
 
+      {/* Manage tab */}
+      {!loading && activeTab === "manage" && (
+        <div className="space-y-3">
+          {users.map(u => {
+            const isActive = u.is_active !== false;
+            const perms = u.permissions || [];
+            return (
+              <div key={u.id} className={`bg-card border rounded-xl p-4 flex items-center gap-3 ${!isActive ? "opacity-60" : "border-border"}`}>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary flex-shrink-0">
+                  {u.full_name?.[0] || "؟"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm">{u.full_name || u.email}</span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${u.role === "admin" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>
+                      {u.role === "admin" ? "🔑 مدير" : "👤 عضو"}
+                    </span>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                      {isActive ? "● مفعّل" : "● موقوف"}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{u.email}</div>
+                  {u.role !== "admin" && perms.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-1.5">
+                      {perms.map(pk => {
+                        const p = ALL_PERMISSIONS.find(x => x.key === pk);
+                        return p ? (
+                          <span key={pk} className="text-xs bg-secondary border border-border rounded-full px-2 py-0.5">
+                            {p.icon} {p.label}
+                          </span>
+                        ) : null;
+                      })}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setManagingUser(u)}
+                  className="flex-shrink-0 px-3 py-1.5 rounded-lg border border-border text-sm hover:bg-secondary transition-colors"
+                >
+                  تعديل
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       {showInvite && (
         <InviteModal
           onClose={() => setShowInvite(false)}
           onInvited={loadData}
+        />
+      )}
+      {managingUser && (
+        <ManageUserModal
+          member={managingUser}
+          onClose={() => setManagingUser(null)}
+          onSaved={loadData}
         />
       )}
     </div>
