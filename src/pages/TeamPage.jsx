@@ -251,14 +251,12 @@ export default function TeamPage() {
           </h1>
           <p className="text-muted-foreground text-sm mt-1">تتبع تفاعل وأداء أعضاء الفريق في منصة التقويم الذاتي</p>
         </div>
-        {isAdmin && (
-          <button
-            onClick={() => setShowInvite(true)}
-            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90"
-          >
-            <Plus size={16} /> دعوة عضو جديد
-          </button>
-        )}
+        <button
+          onClick={() => setShowInvite(true)}
+          className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90"
+        >
+          <Plus size={16} /> دعوة عضو جديد
+        </button>
       </div>
 
       {/* Stats bar */}
