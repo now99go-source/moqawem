@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { trackActivity } from "../utils/trackActivity";
 import { Plus, X, CheckCircle2, Clock, AlertCircle, Calendar, User, Trash2, Edit2 } from "lucide-react";
 import { indicatorLabel } from "../utils/indicatorMap";
 
@@ -135,6 +137,7 @@ const STATUS_STYLE = { "لم تبدأ": "bg-gray-100 text-gray-600", "جارية
 const STATUS_ICON = { "لم تبدأ": Clock, "جارية": AlertCircle, "مكتملة": CheckCircle2, "متأخرة": AlertCircle };
 
 export default function TasksPage() {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -149,9 +152,13 @@ export default function TasksPage() {
     if (editTask) {
       const updated = await base44.entities.Task.update(editTask.id, form);
       setTasks(prev => prev.map(t => t.id === editTask.id ? updated : t));
+      if (form.status === "مكتملة" && editTask.status !== "مكتملة") {
+        await trackActivity(user, "إتمام تكليف", { indicator_code: form.indicator_code, details: form.title });
+      }
     } else {
       const saved = await base44.entities.Task.create(form);
       setTasks(prev => [saved, ...prev]);
+      await trackActivity(user, "إضافة تكليف", { indicator_code: form.indicator_code, details: form.title });
     }
     setShowModal(false); setEditTask(null);
   };

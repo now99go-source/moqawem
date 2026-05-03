@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
+import { trackActivity } from "../utils/trackActivity";
 import { Plus, X, TrendingUp, Target, Calendar, User, Trash2, Edit2, ChevronDown } from "lucide-react";
 import PerformanceBadge from "../components/PerformanceBadge";
 
@@ -106,6 +108,7 @@ function PlanModal({ plan, onSave, onClose }) {
 const STATUS_STYLE = { "مقترحة": "bg-gray-100 text-gray-600", "جارية": "bg-blue-100 text-blue-700", "مكتملة": "bg-green-100 text-green-700", "متوقفة": "bg-red-100 text-red-700" };
 
 export default function ImprovementPlanPage() {
+  const { user } = useAuth();
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -119,9 +122,11 @@ export default function ImprovementPlanPage() {
     if (editPlan) {
       const updated = await base44.entities.ImprovementPlan.update(editPlan.id, form);
       setPlans(prev => prev.map(p => p.id === editPlan.id ? updated : p));
+      await trackActivity(user, "تحديث خطة تحسين", { indicator_code: form.indicator_code, details: form.title });
     } else {
       const saved = await base44.entities.ImprovementPlan.create(form);
       setPlans(prev => [saved, ...prev]);
+      await trackActivity(user, "إضافة خطة تحسين", { indicator_code: form.indicator_code, details: form.title });
     }
     setShowModal(false); setEditPlan(null);
   };

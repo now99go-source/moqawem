@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { Upload, X, Plus, Loader2, FileText, Merge } from "lucide-react";
+import { trackActivity } from "@/utils/trackActivity";
 
 /**
  * Inline evidence-adding panel, pre-bound to a specific indicator code.
@@ -84,6 +85,12 @@ export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved,
       indicator_code: indicatorCode,
       indicator_id: indicatorId || null,
       file_url, file_name, file_type,
+    });
+    // Track activity
+    const currentUser = await base44.auth.me().catch(() => null);
+    await trackActivity(currentUser, "إضافة شاهد", {
+      indicator_code: indicatorCode,
+      details: form.title,
     });
     setUploading(false);
     onSaved(saved);

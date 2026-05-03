@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 import PerformanceBadge from "../components/PerformanceBadge";
 import AddEvidenceInline from "../components/AddEvidenceInline";
 import { REQUIRED_DOCS } from "../utils/requiredDocuments";
+import { trackActivity } from "../utils/trackActivity";
 import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon } from "lucide-react";
 
 // Built-in standards data based on ETEC framework
@@ -301,6 +303,7 @@ function EditIndicatorModal({ indicator, onSave, onClose }) {
 }
 
 export default function Standards() {
+  const { user } = useAuth();
   const [evaluations, setEvaluations] = useState({});
   const [tasksByCode, setTasksByCode] = useState({});
   const [expandedDomains, setExpandedDomains] = useState({ "1": true });
@@ -369,6 +372,7 @@ export default function Standards() {
       saved = await base44.entities.Indicator.create(data);
     }
     setEvaluations(prev => ({ ...prev, [code]: saved }));
+    await trackActivity(user, "تقييم مؤشر", { indicator_code: code, details: form.performance_level });
     setSaving(false);
     setEditingIndicator(null);
   };
