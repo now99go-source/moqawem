@@ -5,8 +5,9 @@ import PerformanceBadge from "../components/PerformanceBadge";
 import AddEvidenceInline from "../components/AddEvidenceInline";
 import { REQUIRED_DOCS } from "../utils/requiredDocuments";
 import { trackActivity } from "../utils/trackActivity";
-import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon, Printer, Pencil, Check } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon, Printer, Pencil, Check, Award } from "lucide-react";
 import PrintReport from "../components/PrintReport";
+import ExportPortfolioPDF from "../components/ExportPortfolioPDF";
 
 // Built-in standards data based on ETEC framework
 const ETEC_STRUCTURE = [
@@ -317,6 +318,7 @@ export default function Standards() {
   const [editingEvidenceName, setEditingEvidenceName] = useState(null); // evidence id
   const [editingEvidenceNameVal, setEditingEvidenceNameVal] = useState("");
   const [showPrint, setShowPrint] = useState(false);
+  const [showExport, setShowExport] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -397,6 +399,12 @@ export default function Standards() {
         </div>
         <div className="flex items-center gap-3">
           <button
+            onClick={() => setShowExport(true)}
+            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+          >
+            <Award size={15} /> ملف الإنجاز
+          </button>
+          <button
             onClick={() => setShowPrint(true)}
             className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
           >
@@ -408,6 +416,15 @@ export default function Standards() {
           </div>
         </div>
       </div>
+
+      {showExport && (
+        <ExportPortfolioPDF
+          etecStructure={ETEC_STRUCTURE}
+          evaluations={evaluations}
+          evidenceByCode={evidenceByCode}
+          onClose={() => setShowExport(false)}
+        />
+      )}
 
       {showPrint && (
         <PrintReport
