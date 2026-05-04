@@ -19,6 +19,7 @@ export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved,
   const [mergeConfirmed, setMergeConfirmed] = useState(null); // null=pending, true=yes, false=no
   const [uploading, setUploading] = useState(false);
   const [merging, setMerging] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files);
@@ -65,35 +66,39 @@ export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved,
 
   const doUpload = async (uploadFiles) => {
     setUploading(true);
-    let file_url = "", file_name = "", file_type = "";
-    if (uploadFiles && uploadFiles.length > 0) {
-      let finalFile;
-      if (mergeConfirmed === true && allPDFs && uploadFiles.length > 1) {
-        setMerging(true);
-        finalFile = await mergePDFs(uploadFiles);
-        setMerging(false);
-      } else {
-        finalFile = uploadFiles[0]; // just upload first if merge refused
+    try {
+      let file_url = "", file_name = "", file_type = "";
+      if (uploadFiles && uploadFiles.length > 0) {
+        let finalFile;
+        if (mergeConfirmed === true && allPDFs && uploadFiles.length > 1) {
+          setMerging(true);
+          finalFile = await mergePDFs(uploadFiles);
+          setMerging(false);
+        } else {
+          finalFile = uploadFiles[0];
+        }
+        const res = await base44.integrations.Core.UploadFile({ file: finalFile });
+        file_url = res.file_url;
+        file_name = finalFile.name;
+        file_type = finalFile.type;
       }
-      const res = await base44.integrations.Core.UploadFile({ file: finalFile });
-      file_url = res.file_url;
-      file_name = finalFile.name;
-      file_type = finalFile.type;
+      const saved = await base44.entities.Evidence.create({
+        ...form,
+        indicator_code: indicatorCode,
+        indicator_id: indicatorId || null,
+        file_url, file_name, file_type,
+      });
+      const currentUser = await base44.auth.me().catch(() => null);
+      await trackActivity(currentUser, "إضافة شاهد", {
+        indicator_code: indicatorCode,
+        details: form.title,
+      });
+      setSaved(true);
+      setTimeout(() => onSaved(saved), 800);
+    } finally {
+      setUploading(false);
+      setMerging(false);
     }
-    const saved = await base44.entities.Evidence.create({
-      ...form,
-      indicator_code: indicatorCode,
-      indicator_id: indicatorId || null,
-      file_url, file_name, file_type,
-    });
-    // Track activity
-    const currentUser = await base44.auth.me().catch(() => null);
-    await trackActivity(currentUser, "إضافة شاهد", {
-      indicator_code: indicatorCode,
-      details: form.title,
-    });
-    setUploading(false);
-    onSaved(saved);
   };
 
   const statusColors = { "قيد المراجعة": "bg-orange-100 text-orange-700", "مكتمل": "bg-green-100 text-green-700", "ناقص": "bg-red-100 text-red-700" };
@@ -205,7 +210,7 @@ export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved,
       {mergeConfirmed !== "asking" && (
         <button
           onClick={handleSubmit}
-          disabled={uploading || merging || !form.title}
+          disabled={uploading || merging || !form.title || saved}
           className="w-full bg-blue-600 text-white rounded-lg py-2 text-sm font-medium hover:bg-blue-700 disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {(uploading || merging) ? (
@@ -215,8 +220,7 @@ export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved,
             </>
           ) : (
             <>
-              <Plus size={14} />
-              حفظ الشاهد
+              {saved ? "✅ تم الحفظ!" : <><Plus size={14} />حفظ الشاهد</>}
             </>
           )}
         </button>
