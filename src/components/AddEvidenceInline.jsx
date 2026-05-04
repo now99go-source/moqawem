@@ -82,12 +82,13 @@ export default function AddEvidenceInline({ indicatorCode, indicatorId, onSaved,
         file_name = finalFile.name;
         file_type = finalFile.type;
       }
-      const saved = await base44.entities.Evidence.create({
+      const evidenceData = {
         ...form,
         indicator_code: indicatorCode,
-        indicator_id: indicatorId || null,
         file_url, file_name, file_type,
-      });
+      };
+      if (indicatorId) evidenceData.indicator_id = indicatorId;
+      const saved = await base44.entities.Evidence.create(evidenceData);
       const currentUser = await base44.auth.me().catch(() => null);
       await trackActivity(currentUser, "إضافة شاهد", {
         indicator_code: indicatorCode,
