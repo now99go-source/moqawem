@@ -465,94 +465,26 @@ export default function Standards() {
                             const data = getIndicatorData(ind.code, ind.desc);
                             return (
                               <div key={ind.code} className="px-5 py-3 hover:bg-secondary/30 transition-colors">
-                                 <div className="flex items-start gap-3">
-                                   <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded flex-shrink-0 mt-0.5">{ind.code}</span>
-                                   <div className="flex-1 min-w-0">
-                                     <p className="text-sm leading-relaxed">{ind.desc}</p>
-                                     {ind.tamayuz && (
-                                       <p className="text-xs text-amber-700 mt-1 leading-relaxed">
-                                         <span className="font-semibold">★ التميز: </span>{ind.tamayuz}
-                                       </p>
-                                     )}
-                                     {ind.tools && ind.tools.length > 0 && (
-                                       <div className="mt-1.5 flex flex-wrap gap-1">
-                                         {ind.tools.map(tool => (
-                                           <span key={tool} className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded px-2 py-0.5 font-medium">{tool}</span>
-                                         ))}
-                                       </div>
-                                     )}
-                                     {REQUIRED_DOCS[ind.code] && (
-                                       <div className="mt-2">
-                                         <div className="text-xs text-blue-600 font-semibold mb-1">📂 الوثائق والسجلات المطلوبة:</div>
-                                         <div className="flex flex-wrap gap-1.5">
-                                           {REQUIRED_DOCS[ind.code].map(doc => {
-                                             const linked = (evidenceByCode[ind.code] || []).find(
-                                               ev => ev.title === doc || ev.description?.includes(doc)
-                                             );
-                                             return (
-                                               <button
-                                                 key={doc}
-                                                 onClick={() => setAddingEvidenceFor({ code: ind.code, docTitle: doc })}
-                                                 title={linked ? `مرتبط بشاهد: ${linked.title}` : "انقر لإرفاق شاهد لهذا السجل"}
-                                                 className={`inline-flex items-center gap-1.5 text-xs rounded-md px-2.5 py-1 font-medium border transition-all hover:shadow-sm
-                                                   ${linked
-                                                     ? "bg-green-50 text-green-700 border-green-300 hover:bg-green-100"
-                                                     : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-400"
-                                                   }`}
-                                               >
-                                                 <PaperclipIcon size={11} />
-                                                 {doc}
-                                                 {linked && <span className="text-green-500">✓</span>}
-                                               </button>
-                                             );
-                                           })}
-                                         </div>
-                                       </div>
-                                     )}
-                                   </div>
-                                   <div className="flex items-center gap-2 flex-shrink-0 flex-wrap justify-end">
-                                    {/* Assignees from tasks */}
-                                    {(tasksByCode[ind.code] || []).filter(t => t.status !== "مكتملة").map(t => (
-                                      <span key={t.id} className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5 font-medium">
-                                        👤 {t.assigned_to}
-                                      </span>
-                                    ))}
-                                    {/* Evidence badges */}
-                                    {(evidenceByCode[ind.code] || []).map(ev => (
-                                      <span key={ev.id} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-lg px-2 py-0.5 max-w-[160px]">
-                                        {ev.file_url
-                                          ? <a href={ev.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline truncate">
-                                              <PaperclipIcon size={10} className="flex-shrink-0" />
-                                              <span className="truncate">{ev.file_name || ev.title}</span>
-                                            </a>
-                                          : <span className="flex items-center gap-1 truncate">
-                                              <PaperclipIcon size={10} className="flex-shrink-0" />
-                                              <span className="truncate">{ev.title}</span>
-                                            </span>
-                                        }
-                                        {editingEvidenceName === ev.id ? (
-                                          <span className="flex items-center gap-0.5 mr-1">
-                                            <input
-                                              value={editingEvidenceNameVal}
-                                              onChange={e => setEditingEvidenceNameVal(e.target.value)}
-                                              className="w-24 border border-green-300 rounded px-1 text-xs bg-white"
-                                              autoFocus
-                                            />
-                                            <button onClick={async () => {
-                                              await base44.entities.Evidence.update(ev.id, { file_name: editingEvidenceNameVal, title: editingEvidenceNameVal });
-                                              setEvidenceByCode(prev => ({
-                                                ...prev,
-                                                [ind.code]: prev[ind.code].map(e => e.id === ev.id ? { ...e, file_name: editingEvidenceNameVal, title: editingEvidenceNameVal } : e)
-                                              }));
-                                              setEditingEvidenceName(null);
-                                            }} className="text-green-600 hover:text-green-800"><Check size={11} /></button>
-                                            <button onClick={() => setEditingEvidenceName(null)} className="text-red-400 hover:text-red-600"><X size={11} /></button>
-                                          </span>
-                                        ) : (
-                                          <button onClick={() => { setEditingEvidenceName(ev.id); setEditingEvidenceNameVal(ev.file_name || ev.title); }} className="text-green-400 hover:text-green-700 mr-0.5 flex-shrink-0"><Pencil size={10} /></button>
-                                        )}
-                                      </span>
-                                    ))}
+                                {/* السطر الأول: الرمز + النص + الأزرار + التقييم */}
+                                <div className="flex items-start gap-3">
+                                  <span className="text-xs font-mono text-muted-foreground bg-secondary px-2 py-0.5 rounded flex-shrink-0 mt-0.5">{ind.code}</span>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm leading-relaxed">{ind.desc}</p>
+                                    {ind.tamayuz && (
+                                      <p className="text-xs text-amber-700 mt-1 leading-relaxed">
+                                        <span className="font-semibold">★ التميز: </span>{ind.tamayuz}
+                                      </p>
+                                    )}
+                                    {ind.tools && ind.tools.length > 0 && (
+                                      <div className="mt-1.5 flex flex-wrap gap-1">
+                                        {ind.tools.map(tool => (
+                                          <span key={tool} className="text-xs bg-teal-50 text-teal-700 border border-teal-200 rounded px-2 py-0.5 font-medium">{tool}</span>
+                                        ))}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {/* أزرار التقييم والإضافة */}
+                                  <div className="flex items-center gap-2 flex-shrink-0">
                                     <PerformanceBadge level={data.performance_level} />
                                     {data.score_percentage > 0 && (
                                       <span className="text-xs text-muted-foreground">{data.score_percentage}%</span>
@@ -570,32 +502,118 @@ export default function Standards() {
                                     >
                                       <Edit2 size={14} />
                                     </button>
+                                  </div>
+                                </div>
+
+                                {/* السطر الثاني: الوثائق المطلوبة والشواهد المرفوعة */}
+                                <div className="mt-2 mr-14 space-y-1.5">
+                                  {/* Assignees */}
+                                  {(tasksByCode[ind.code] || []).filter(t => t.status !== "مكتملة").length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {(tasksByCode[ind.code] || []).filter(t => t.status !== "مكتملة").map(t => (
+                                        <span key={t.id} className="inline-flex items-center gap-1 text-xs bg-blue-50 text-blue-700 border border-blue-200 rounded-full px-2.5 py-0.5 font-medium">
+                                          👤 {t.assigned_to}
+                                        </span>
+                                      ))}
                                     </div>
+                                  )}
+                                  {/* Responsible */}
+                                  {data.responsible && (
+                                    <div>
+                                      <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary border border-primary/20 rounded-full px-2.5 py-0.5 font-medium">
+                                        👤 {data.responsible}
+                                      </span>
                                     </div>
-                                    {data.responsible && (
-                                    <div className="mr-16 mt-1">
-                                     <span className="inline-flex items-center gap-1 text-xs bg-primary/10 text-primary border border-primary/20 rounded-full px-2.5 py-0.5 font-medium">
-                                       👤 {data.responsible}
-                                     </span>
+                                  )}
+                                  {/* Uploaded evidence */}
+                                  {(evidenceByCode[ind.code] || []).length > 0 && (
+                                    <div className="flex flex-wrap gap-1.5">
+                                      {(evidenceByCode[ind.code] || []).map(ev => (
+                                        <span key={ev.id} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-lg px-2 py-0.5 max-w-[220px]">
+                                          {ev.file_url
+                                            ? <a href={ev.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline truncate">
+                                                <PaperclipIcon size={10} className="flex-shrink-0" />
+                                                <span className="truncate">{ev.file_name || ev.title}</span>
+                                              </a>
+                                            : <span className="flex items-center gap-1 truncate">
+                                                <PaperclipIcon size={10} className="flex-shrink-0" />
+                                                <span className="truncate">{ev.title}</span>
+                                              </span>
+                                          }
+                                          {editingEvidenceName === ev.id ? (
+                                            <span className="flex items-center gap-0.5 mr-1">
+                                              <input
+                                                value={editingEvidenceNameVal}
+                                                onChange={e => setEditingEvidenceNameVal(e.target.value)}
+                                                className="w-24 border border-green-300 rounded px-1 text-xs bg-white"
+                                                autoFocus
+                                              />
+                                              <button onClick={async () => {
+                                                await base44.entities.Evidence.update(ev.id, { file_name: editingEvidenceNameVal, title: editingEvidenceNameVal });
+                                                setEvidenceByCode(prev => ({
+                                                  ...prev,
+                                                  [ind.code]: prev[ind.code].map(e => e.id === ev.id ? { ...e, file_name: editingEvidenceNameVal, title: editingEvidenceNameVal } : e)
+                                                }));
+                                                setEditingEvidenceName(null);
+                                              }} className="text-green-600 hover:text-green-800"><Check size={11} /></button>
+                                              <button onClick={() => setEditingEvidenceName(null)} className="text-red-400 hover:text-red-600"><X size={11} /></button>
+                                            </span>
+                                          ) : (
+                                            <button onClick={() => { setEditingEvidenceName(ev.id); setEditingEvidenceNameVal(ev.file_name || ev.title); }} className="text-green-400 hover:text-green-700 mr-0.5 flex-shrink-0"><Pencil size={10} /></button>
+                                          )}
+                                        </span>
+                                      ))}
                                     </div>
-                                    )}
-                                    {addingEvidenceFor?.code === ind.code && (
-                                     <AddEvidenceInline
-                                       indicatorCode={ind.code}
-                                       indicatorId={evaluations[ind.code]?.id || null}
-                                       defaultTitle={addingEvidenceFor?.docTitle || ""}
-                                       onSaved={(saved) => {
-                                         setEvidenceByCode(prev => ({
-                                           ...prev,
-                                           [ind.code]: [...(prev[ind.code] || []), saved],
-                                         }));
-                                         setAddingEvidenceFor(null);
-                                       }}
-                                       onClose={() => setAddingEvidenceFor(null)}
-                                     />
-                                    )}
+                                  )}
+                                  {/* Required docs */}
+                                  {REQUIRED_DOCS[ind.code] && (
+                                    <div>
+                                      <div className="text-xs text-blue-600 font-semibold mb-1">📂 الوثائق والسجلات المطلوبة:</div>
+                                      <div className="flex flex-wrap gap-1.5">
+                                        {REQUIRED_DOCS[ind.code].map(doc => {
+                                          const linked = (evidenceByCode[ind.code] || []).find(
+                                            ev => ev.title === doc || ev.description?.includes(doc)
+                                          );
+                                          return (
+                                            <button
+                                              key={doc}
+                                              onClick={() => setAddingEvidenceFor({ code: ind.code, docTitle: doc })}
+                                              title={linked ? `مرتبط بشاهد: ${linked.title}` : "انقر لإرفاق شاهد لهذا السجل"}
+                                              className={`inline-flex items-center gap-1.5 text-xs rounded-md px-2.5 py-1 font-medium border transition-all hover:shadow-sm
+                                                ${linked
+                                                  ? "bg-green-50 text-green-700 border-green-300 hover:bg-green-100"
+                                                  : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-400"
+                                                }`}
+                                            >
+                                              <PaperclipIcon size={11} />
+                                              {doc}
+                                              {linked && <span className="text-green-500">✓</span>}
+                                            </button>
+                                          );
+                                        })}
+                                      </div>
                                     </div>
-                                    );
+                                  )}
+                                </div>
+
+                                {/* نموذج إضافة الشاهد */}
+                                {addingEvidenceFor?.code === ind.code && (
+                                  <AddEvidenceInline
+                                    indicatorCode={ind.code}
+                                    indicatorId={evaluations[ind.code]?.id || null}
+                                    defaultTitle={addingEvidenceFor?.docTitle || ""}
+                                    onSaved={(saved) => {
+                                      setEvidenceByCode(prev => ({
+                                        ...prev,
+                                        [ind.code]: [...(prev[ind.code] || []), saved],
+                                      }));
+                                      setAddingEvidenceFor(null);
+                                    }}
+                                    onClose={() => setAddingEvidenceFor(null)}
+                                  />
+                                )}
+                              </div>
+                              );
                                    })}
                                    </div>
                                    )}
