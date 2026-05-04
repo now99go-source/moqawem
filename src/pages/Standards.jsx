@@ -5,7 +5,8 @@ import PerformanceBadge from "../components/PerformanceBadge";
 import AddEvidenceInline from "../components/AddEvidenceInline";
 import { REQUIRED_DOCS } from "../utils/requiredDocuments";
 import { trackActivity } from "../utils/trackActivity";
-import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon } from "lucide-react";
+import { BookOpen, ChevronDown, ChevronLeft, Plus, Edit2, Save, X, PaperclipIcon, Printer, Pencil, Check } from "lucide-react";
+import PrintReport from "../components/PrintReport";
 
 // Built-in standards data based on ETEC framework
 const ETEC_STRUCTURE = [
@@ -312,8 +313,10 @@ export default function Standards() {
   const [addingEvidenceFor, setAddingEvidenceFor] = useState(null); // { code, docTitle? }
 
   const [saving, setSaving] = useState(false);
-
   const [evidenceByCode, setEvidenceByCode] = useState({});
+  const [editingEvidenceName, setEditingEvidenceName] = useState(null); // evidence id
+  const [editingEvidenceNameVal, setEditingEvidenceNameVal] = useState("");
+  const [showPrint, setShowPrint] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -392,11 +395,28 @@ export default function Standards() {
           <h1 className="text-2xl font-bold">المعايير والمؤشرات</h1>
           <p className="text-muted-foreground text-sm mt-1">تقييم المؤشرات وفق معايير هيئة تقويم التعليم والتدريب</p>
         </div>
-        <div className="bg-card border border-border rounded-lg px-4 py-2 text-sm">
-          <span className="font-bold text-primary">{Object.keys(evaluations).length}</span>
-          <span className="text-muted-foreground"> / 52 مؤشر مُقيَّم</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowPrint(true)}
+            className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            <Printer size={15} /> طباعة التقرير
+          </button>
+          <div className="bg-card border border-border rounded-lg px-4 py-2 text-sm">
+            <span className="font-bold text-primary">{Object.keys(evaluations).length}</span>
+            <span className="text-muted-foreground"> / 52 مؤشر مُقيَّم</span>
+          </div>
         </div>
       </div>
+
+      {showPrint && (
+        <PrintReport
+          etecStructure={ETEC_STRUCTURE}
+          evaluations={evaluations}
+          evidenceByCode={evidenceByCode}
+          onClose={() => setShowPrint(false)}
+        />
+      )}
 
       {ETEC_STRUCTURE.map((domain) => {
         const colors = DOMAIN_COLORS[domain.color];
@@ -499,12 +519,39 @@ export default function Standards() {
                                     ))}
                                     {/* Evidence badges */}
                                     {(evidenceByCode[ind.code] || []).map(ev => (
-                                      ev.file_url
-                                        ? <a key={ev.id} href={ev.file_url} target="_blank" rel="noopener noreferrer"
-                                            className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-full px-2.5 py-0.5 font-medium hover:bg-green-100 transition-colors">
-                                            📎 يوجد شاهد
-                                          </a>
-                                        : <span key={ev.id} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-full px-2.5 py-0.5 font-medium">📎 يوجد شاهد</span>
+                                      <span key={ev.id} className="inline-flex items-center gap-1 text-xs bg-green-50 text-green-700 border border-green-200 rounded-lg px-2 py-0.5 max-w-[160px]">
+                                        {ev.file_url
+                                          ? <a href={ev.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 hover:underline truncate">
+                                              <PaperclipIcon size={10} className="flex-shrink-0" />
+                                              <span className="truncate">{ev.file_name || ev.title}</span>
+                                            </a>
+                                          : <span className="flex items-center gap-1 truncate">
+                                              <PaperclipIcon size={10} className="flex-shrink-0" />
+                                              <span className="truncate">{ev.title}</span>
+                                            </span>
+                                        }
+                                        {editingEvidenceName === ev.id ? (
+                                          <span className="flex items-center gap-0.5 mr-1">
+                                            <input
+                                              value={editingEvidenceNameVal}
+                                              onChange={e => setEditingEvidenceNameVal(e.target.value)}
+                                              className="w-24 border border-green-300 rounded px-1 text-xs bg-white"
+                                              autoFocus
+                                            />
+                                            <button onClick={async () => {
+                                              await base44.entities.Evidence.update(ev.id, { file_name: editingEvidenceNameVal, title: editingEvidenceNameVal });
+                                              setEvidenceByCode(prev => ({
+                                                ...prev,
+                                                [ind.code]: prev[ind.code].map(e => e.id === ev.id ? { ...e, file_name: editingEvidenceNameVal, title: editingEvidenceNameVal } : e)
+                                              }));
+                                              setEditingEvidenceName(null);
+                                            }} className="text-green-600 hover:text-green-800"><Check size={11} /></button>
+                                            <button onClick={() => setEditingEvidenceName(null)} className="text-red-400 hover:text-red-600"><X size={11} /></button>
+                                          </span>
+                                        ) : (
+                                          <button onClick={() => { setEditingEvidenceName(ev.id); setEditingEvidenceNameVal(ev.file_name || ev.title); }} className="text-green-400 hover:text-green-700 mr-0.5 flex-shrink-0"><Pencil size={10} /></button>
+                                        )}
+                                      </span>
                                     ))}
                                     <PerformanceBadge level={data.performance_level} />
                                     {data.score_percentage > 0 && (
