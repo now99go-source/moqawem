@@ -1,0 +1,9 @@
+{
+  "name": "\u0645\u0642\u0648\u0645 (Moqawem)",
+  "site": {
+    "installCommand": "npm install",
+    "buildCommand": "npm run build",
+    "serveCommand": "npm run dev",
+    "outputDirectory": "./dist"
+  }
+}
