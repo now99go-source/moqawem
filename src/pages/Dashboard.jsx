@@ -3,7 +3,9 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/StatsCard";
 import PerformanceBadge from "../components/PerformanceBadge";
-import { BookOpen, FileText, CheckSquare, TrendingUp, AlertCircle, Clock, CheckCircle2, School } from "lucide-react";
+import ExportPortfolioPDF from "../components/ExportPortfolioPDF";
+import { ETEC_STRUCTURE } from "../utils/etecStructure";
+import { BookOpen, FileText, CheckSquare, TrendingUp, AlertCircle, Clock, CheckCircle2, School, Award } from "lucide-react";
 
 const DOMAINS_DATA = [
   { name: "الإدارة المدرسية", color: "bg-purple-500", indicators: 15 },
@@ -18,6 +20,9 @@ export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
   const [improvements, setImprovements] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showExport, setShowExport] = useState(false);
+  const [evaluations, setEvaluations] = useState({});
+  const [evidenceByCode, setEvidenceByCode] = useState({});
 
   useEffect(() => {
     Promise.all([
@@ -30,6 +35,22 @@ export default function Dashboard() {
       setEvidence(ev);
       setTasks(tsk);
       setImprovements(imp);
+
+      // Build evaluations map for export
+      const evalMap = {};
+      ind.forEach(i => { evalMap[i.code] = i; });
+      setEvaluations(evalMap);
+
+      // Build evidence by indicator_code map
+      const evMap = {};
+      ev.forEach(e => {
+        if (e.indicator_code) {
+          if (!evMap[e.indicator_code]) evMap[e.indicator_code] = [];
+          evMap[e.indicator_code].push(e);
+        }
+      });
+      setEvidenceByCode(evMap);
+
       setLoading(false);
     });
   }, []);
@@ -61,15 +82,31 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6 fade-in" dir="rtl">
+      {showExport && (
+        <ExportPortfolioPDF
+          etecStructure={ETEC_STRUCTURE}
+          evaluations={evaluations}
+          evidenceByCode={evidenceByCode}
+          onClose={() => setShowExport(false)}
+        />
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">لوحة التحكم</h1>
           <p className="text-muted-foreground text-sm mt-1">التقويم الذاتي المدرسي — هيئة تقويم التعليم والتدريب</p>
         </div>
-        <div className="hidden md:flex items-center gap-2 bg-card border border-border rounded-lg px-4 py-2">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-sm font-medium">العام الدراسي 1446/1447هـ</span>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowExport(true)}
+            className="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-colors shadow-sm"
+          >
+            <Award size={16} /> ملف الإنجاز
+          </button>
+          <div className="hidden md:flex items-center gap-2 bg-card border border-border rounded-lg px-4 py-2">
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-sm font-medium">العام الدراسي 1446/1447هـ</span>
+          </div>
         </div>
       </div>
 
