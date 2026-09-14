@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import StatsCard from "../components/StatsCard";
 import PerformanceBadge from "../components/PerformanceBadge";
 import ExportPortfolioPDF from "../components/ExportPortfolioPDF";
+import DomainCharts from "../components/DomainCharts";
 import { ETEC_STRUCTURE } from "../utils/etecStructure";
 import { BookOpen, FileText, CheckSquare, TrendingUp, AlertCircle, Clock, CheckCircle2, School, Award } from "lucide-react";
 
@@ -143,6 +144,9 @@ export default function Dashboard() {
         <StatsCard title="التكليفات المعلقة" value={pendingTasks} subtitle={`${urgentTasks} عاجل`} icon={CheckSquare} color={urgentTasks > 0 ? "red" : "orange"} />
         <StatsCard title="خطط التحسين" value={improvements.length} subtitle={`${improvements.filter(i=>i.status==="جارية").length} جارية`} icon={TrendingUp} color="blue" />
       </div>
+
+      {/* Domain Charts */}
+      <DomainCharts indicators={indicators} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance Levels */}
